@@ -29,5 +29,13 @@
       "connection_error": "Kan ikke oprette forbindelse til afspilleren.",
       "command_error": "Afspilleren kunne ikke udføre handlingen."
     }
+  },
+  "pairing": {
+    "error": {
+      "title": "Forbindelsen mislykkedes",
+      "description": "Homey kunne ikke oprette forbindelse til enheden. Sørg for, at den er tændt, er på samme netværk som Homey, og at AirPlay-adgang er aktiveret.",
+      "retry": "Prøv igen",
+      "unknown": "Ingen yderligere detaljer tilgængelige."
+    }
   }
 }

@@ -13,6 +13,14 @@
             "on": "Allumé"
         }
     },
+    "pairing": {
+        "error": {
+            "title": "Échec de la connexion",
+            "description": "Homey n'a pas pu se connecter à l'appareil. Vérifiez qu'il est allumé, sur le même réseau que Homey et que l'accès AirPlay est activé.",
+            "retry": "Réessayer",
+            "unknown": "Aucun détail supplémentaire disponible."
+        }
+    },
     "widget": {
         "apple_tv_remote": {
             "no_device": "Aucun Apple TV sélectionné"

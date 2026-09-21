@@ -5,3 +5,4 @@ export { default as getAccessoryCredentialsFromDevice } from './getAccessoryCred
 export { capabilityToRepeatMode, repeatModeToProto, repeatModeToCapability } from './repeatMode';
 export { default as safeCapabilityValue } from './safeCapabilityValue';
 export { default as waitFor } from './waitFor';
+export { default as withTimeout } from './withTimeout';

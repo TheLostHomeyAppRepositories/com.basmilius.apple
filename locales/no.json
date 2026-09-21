@@ -29,5 +29,13 @@
       "connection_error": "Kan ikke koble til spilleren.",
       "command_error": "Spilleren kunne ikke utføre handlingen."
     }
+  },
+  "pairing": {
+    "error": {
+      "title": "Tilkoblingen mislyktes",
+      "description": "Homey kunne ikke koble til enheten. Kontroller at den er slått på, er på samme nettverk som Homey, og at AirPlay-tilgang er aktivert.",
+      "retry": "Prøv igjen",
+      "unknown": "Ingen flere detaljer tilgjengelig."
+    }
   }
 }

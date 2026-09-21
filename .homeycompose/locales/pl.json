@@ -13,6 +13,14 @@
             "on": "Włączony"
         }
     },
+    "pairing": {
+        "error": {
+            "title": "Połączenie nie powiodło się",
+            "description": "Homey nie mógł połączyć się z urządzeniem. Upewnij się, że jest włączone, znajduje się w tej samej sieci co Homey i że dostęp AirPlay jest włączony.",
+            "retry": "Spróbuj ponownie",
+            "unknown": "Brak dalszych szczegółów."
+        }
+    },
     "widget": {
         "apple_tv_remote": {
             "no_device": "Nie wybrano Apple TV"

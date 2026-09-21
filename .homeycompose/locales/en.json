@@ -13,6 +13,14 @@
             "on": "On"
         }
     },
+    "pairing": {
+        "error": {
+            "title": "Connection failed",
+            "description": "Homey could not connect to the device. Make sure it is turned on, on the same network as Homey, and that AirPlay access is enabled.",
+            "retry": "Try again",
+            "unknown": "No further details available."
+        }
+    },
     "widget": {
         "mini_player": {
             "no_device": "No device selected",

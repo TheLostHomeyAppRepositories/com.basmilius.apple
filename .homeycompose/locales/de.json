@@ -13,6 +13,14 @@
             "on": "Ein"
         }
     },
+    "pairing": {
+        "error": {
+            "title": "Verbindung fehlgeschlagen",
+            "description": "Homey konnte keine Verbindung zum Gerät herstellen. Stelle sicher, dass es eingeschaltet ist, sich im selben Netzwerk wie Homey befindet und der AirPlay-Zugriff aktiviert ist.",
+            "retry": "Erneut versuchen",
+            "unknown": "Keine weiteren Details verfügbar."
+        }
+    },
     "widget": {
         "mini_player": {
             "no_device": "Kein Gerät ausgewählt",

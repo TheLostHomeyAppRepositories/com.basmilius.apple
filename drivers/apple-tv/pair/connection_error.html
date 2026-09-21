@@ -1,0 +1,70 @@
+<style>
+    .stack {
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+    }
+
+    .text {
+        text-align: center;
+        font-size: 16px;
+        line-height: 1.6;
+        text-wrap: pretty;
+    }
+
+    .detail {
+        padding: 12px;
+        border-radius: 8px;
+        background: rgb(0 0 0 / 5%);
+        font-family: ui-monospace, SFMono-Regular, monospace;
+        font-size: 13px;
+        text-align: center;
+        overflow-wrap: anywhere;
+    }
+</style>
+
+<div class="stack">
+    <h1
+        class="homey-title homey-text-align-center"
+        data-i18n="pairing.error.title"></h1>
+
+    <p
+        class="text"
+        data-i18n="pairing.error.description"></p>
+
+    <p
+        class="detail"
+        id="detail"
+        hidden></p>
+
+    <p
+        class="text"
+        id="unknown"
+        data-i18n="pairing.error.unknown"></p>
+
+    <button
+        class="homey-button-primary-full"
+        id="retry"
+        data-i18n="pairing.error.retry"></button>
+</div>
+
+<script type="application/javascript">
+    Homey.emit('get_pair_error', null)
+        .then(function (message) {
+            if (!message) {
+                return;
+            }
+
+            var detail = document.getElementById('detail');
+            detail.textContent = message;
+            detail.hidden = false;
+            document.getElementById('unknown').hidden = true;
+        })
+        .catch(function () {
+        });
+
+    document.getElementById('retry').addEventListener('click', function () {
+        Homey.showView('discover');
+    });
+</script>

@@ -13,6 +13,14 @@
             "on": "På"
         }
     },
+    "pairing": {
+        "error": {
+            "title": "Anslutningen misslyckades",
+            "description": "Homey kunde inte ansluta till enheten. Kontrollera att den är påslagen, finns på samma nätverk som Homey och att AirPlay-åtkomst är aktiverad.",
+            "retry": "Försök igen",
+            "unknown": "Inga ytterligare detaljer tillgängliga."
+        }
+    },
     "widget": {
         "apple_tv_remote": {
             "no_device": "Ingen Apple TV vald"

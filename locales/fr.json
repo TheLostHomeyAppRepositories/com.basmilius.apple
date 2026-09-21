@@ -29,5 +29,13 @@
       "connection_error": "Impossible de se connecter au lecteur.",
       "command_error": "Le lecteur n’a pas pu effectuer cette action."
     }
+  },
+  "pairing": {
+    "error": {
+      "title": "Échec de la connexion",
+      "description": "Homey n'a pas pu se connecter à l'appareil. Vérifiez qu'il est allumé, sur le même réseau que Homey et que l'accès AirPlay est activé.",
+      "retry": "Réessayer",
+      "unknown": "Aucun détail supplémentaire disponible."
+    }
   }
 }

@@ -29,5 +29,13 @@
     "apple_tv_remote": {
       "no_device": "선택된 Apple TV 없음"
     }
+  },
+  "pairing": {
+    "error": {
+      "title": "연결 실패",
+      "description": "Homey가 기기에 연결하지 못했습니다. 기기가 켜져 있고 Homey와 같은 네트워크에 있으며 AirPlay 접근이 활성화되어 있는지 확인하세요.",
+      "retry": "다시 시도",
+      "unknown": "추가 정보가 없습니다."
+    }
   }
 }

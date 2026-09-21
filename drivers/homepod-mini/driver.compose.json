@@ -111,6 +111,9 @@
         },
         {
             "id": "add_my_device"
+        },
+        {
+            "id": "connection_error"
         }
     ],
     "images": {

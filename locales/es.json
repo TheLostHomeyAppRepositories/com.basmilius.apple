@@ -29,5 +29,13 @@
       "connection_error": "No se puede conectar con el reproductor.",
       "command_error": "El reproductor no pudo completar esta acción."
     }
+  },
+  "pairing": {
+    "error": {
+      "title": "Error de conexión",
+      "description": "Homey no pudo conectarse al dispositivo. Asegúrate de que esté encendido, en la misma red que Homey y con el acceso AirPlay habilitado.",
+      "retry": "Intentar de nuevo",
+      "unknown": "No hay más detalles disponibles."
+    }
   }
 }

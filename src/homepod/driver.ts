@@ -2,7 +2,7 @@ import HomePodBaseDriver from '../homepod-base/driver';
 
 export default class HomePodDriver extends HomePodBaseDriver {
     get modelFilter(): RegExp {
-        return /AudioAccessory[16],\d/;
+        return /AudioAccessory[16],\d+/;
     }
 
     async onInit(): Promise<void> {

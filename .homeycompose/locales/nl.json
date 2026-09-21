@@ -13,6 +13,14 @@
             "on": "Aan"
         }
     },
+    "pairing": {
+        "error": {
+            "title": "Verbinding mislukt",
+            "description": "Homey kon geen verbinding maken met het apparaat. Controleer of het aan staat, op hetzelfde netwerk als Homey zit en of AirPlay-toegang is ingeschakeld.",
+            "retry": "Opnieuw proberen",
+            "unknown": "Geen verdere details beschikbaar."
+        }
+    },
     "widget": {
         "mini_player": {
             "no_device": "Geen apparaat geselecteerd",
