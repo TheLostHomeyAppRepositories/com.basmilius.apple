@@ -122,6 +122,14 @@ export default class AppleTVDevice extends DiscoverableDevice<AppleTVDriver> {
             // Discover Companion Link via unicast using AirPlay's address.
             const companionLink = await this.#discoverCompanionLink(this.discoveryResultAirPlay.address);
 
+            // The SDK binds Companion Link in its constructor, so a service discovered
+            // later only takes effect after rebuilding the device.
+            if (this.#tv && !this.#tv.companionLink && companionLink) {
+                this.log('Companion Link became available, rebuilding the Apple TV device...');
+                this.#tv.disconnect();
+                this.#tv = undefined;
+            }
+
             // Create or reconfigure the SDK device.
             if (!this.#tv) {
                 this.#tv = new AppleTV({
@@ -142,6 +150,11 @@ export default class AppleTVDevice extends DiscoverableDevice<AppleTVDriver> {
 
             this.log('Connecting to Apple TV...');
             await this.#tv.connect(credentials);
+
+            if (!this.#tv.companionLink) {
+                this.log('Connected without Companion Link; power state and app control stay unavailable until it is found.');
+                await this.#startSlowRecovery();
+            }
         } catch (err) {
             this.error('Error received', err);
             await this.setUnavailable('Cannot connect to Apple TV.');
@@ -194,7 +207,7 @@ export default class AppleTVDevice extends DiscoverableDevice<AppleTVDriver> {
             this.#airplayRecovery?.reset();
             this.log('Connected to Apple TV (AirPlay).');
 
-            if (this.#tv!.companionLink?.isConnected) {
+            if (this.#tv!.isConnected) {
                 await this.setAvailable();
             }
         });
@@ -236,7 +249,7 @@ export default class AppleTVDevice extends DiscoverableDevice<AppleTVDriver> {
                 this.#stopSlowRecovery();
                 this.log('Connected to Apple TV (Companion Link).');
 
-                if (this.#tv!.airplay.isConnected) {
+                if (this.#tv!.isConnected) {
                     await this.setAvailable();
                 }
             });
@@ -311,10 +324,13 @@ export default class AppleTVDevice extends DiscoverableDevice<AppleTVDriver> {
     }
 
     async #startSlowRecovery(): Promise<void> {
+        if (this.#slowRecoveryTimer) {
+            return;
+        }
+
         this.log(`Starting slow recovery phase, retrying every ${SLOW_RECOVERY_INTERVAL / 1000}s for up to ${SLOW_RECOVERY_MAX_ATTEMPTS} attempts...`);
         this.#slowRecoveryAttempt = 0;
         this.#scheduleSlowRecoveryAttempt();
-        await this.setUnavailable('Device offline, retrying connection...');
     }
 
     #scheduleSlowRecoveryAttempt(): void {
@@ -335,22 +351,8 @@ export default class AppleTVDevice extends DiscoverableDevice<AppleTVDriver> {
                     throw new Error('Companion Link not found via unicast.');
                 }
 
-                const tv = this.#tv;
-
-                if (!tv?.companionLink) {
-                    return;
-                }
-
                 this.log(`Re-discovered Companion Link at ${cl.address}:${cl.service.port}, reconnecting...`);
-                this.#companionLinkRecovery?.reset();
-                tv.companionLink.discoveryResult = cl;
-
-                const credentials = getAccessoryCredentialsFromDevice(this);
-
-                if (credentials) {
-                    await tv.companionLink.setCredentials(credentials);
-                    await tv.companionLink.connect();
-                }
+                await this.#attachCompanionLink(cl);
             } catch {
                 this.log(`Slow recovery attempt ${this.#slowRecoveryAttempt} failed.`);
             }
@@ -360,7 +362,7 @@ export default class AppleTVDevice extends DiscoverableDevice<AppleTVDriver> {
                 await this.app.appleTvFlow.triggerCompanionLinkFailed(this);
             }
 
-            if (!this.#tv?.companionLink?.isConnected && this.#tv) {
+            if (!this.#slowRecoveryTimer && this.#tv && !this.#tv.companionLink?.isConnected) {
                 this.#scheduleSlowRecoveryAttempt();
             }
         }, interval);
@@ -372,6 +374,30 @@ export default class AppleTVDevice extends DiscoverableDevice<AppleTVDriver> {
             this.#slowRecoveryTimer = null;
         }
         this.#slowRecoveryAttempt = 0;
+    }
+
+    async #attachCompanionLink(discoveryResult: DiscoveryResult): Promise<void> {
+        const tv = this.#tv;
+
+        if (!tv) {
+            return;
+        }
+
+        // A device built without Companion Link cannot gain one; #connect rebuilds it.
+        if (!tv.companionLink) {
+            await this.#connect();
+            return;
+        }
+
+        this.#companionLinkRecovery?.reset();
+        tv.companionLink.discoveryResult = discoveryResult;
+
+        const credentials = getAccessoryCredentialsFromDevice(this);
+
+        if (credentials) {
+            await tv.companionLink.setCredentials(credentials);
+            await tv.companionLink.connect();
+        }
     }
 
     async #onCompanionLinkFailed(): Promise<void> {
@@ -392,22 +418,8 @@ export default class AppleTVDevice extends DiscoverableDevice<AppleTVDriver> {
                     throw new Error('Companion Link not found via unicast.');
                 }
 
-                const tv = this.#tv;
-
-                if (!tv?.companionLink) {
-                    return;
-                }
-
                 this.log(`Re-discovered Companion Link at ${cl.address}:${cl.service.port}, reconnecting...`);
-                this.#companionLinkRecovery?.reset();
-                tv.companionLink.discoveryResult = cl;
-
-                const credentials = getAccessoryCredentialsFromDevice(this);
-
-                if (credentials) {
-                    await tv.companionLink.setCredentials(credentials);
-                    await tv.companionLink.connect();
-                }
+                await this.#attachCompanionLink(cl);
 
                 return;
             } catch {
@@ -415,6 +427,7 @@ export default class AppleTVDevice extends DiscoverableDevice<AppleTVDriver> {
             }
         }
 
+        await this.setUnavailable('Device offline, retrying connection...');
         await this.#startSlowRecovery();
     }
 
@@ -487,10 +500,16 @@ export default class AppleTVDevice extends DiscoverableDevice<AppleTVDriver> {
 
     #registerOnOff(): void {
         this.registerCapabilityListener('onoff', async (value: boolean) => {
+            const power = this.sdk.power;
+
+            if (!power) {
+                throw new Error('Companion Link is not connected, cannot change the power state.');
+            }
+
             if (value) {
-                await this.sdk.power?.on();
+                await power.on();
             } else {
-                await this.sdk.power?.off();
+                await power.off();
             }
         });
     }
