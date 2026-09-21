@@ -313,3 +313,29 @@ body { -webkit-font-smoothing: antialiased; }
 #status:empty { display: none; }
 .control-btn[data-mode="one"]::after { content: '1'; position: absolute; font-size: 9px; font-weight: 700; }
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { transition: none !important; } .player-artwork.is-loading.empty::after { display: none; } }
+
+body.artwork-player { margin: 0; padding: 0; width: 100%; aspect-ratio: 1; overflow: hidden; color: white; background: #171717; }
+.artwork-player .player { position: absolute; inset: 0; justify-content: flex-end; gap: 10px; padding: clamp(16px, 5vw, 28px); }
+.artwork-player .player::before { content: ''; position: absolute; inset: 0; z-index: -1; background: linear-gradient(180deg, rgb(0 0 0 / 0) 15%, rgb(0 0 0 / .1) 35%, rgb(0 0 0 / .82) 100%); pointer-events: none; }
+.artwork-player .player-top, .artwork-player .player-content { display: contents; }
+.artwork-player .player-artwork { position: absolute; inset: 0; width: 100%; height: 100%; border-radius: 0; z-index: -2; background: #262626; }
+.artwork-player .artwork-placeholder { color: rgb(255 255 255 / .15); width: 30%; height: 30%; align-self: flex-start; margin-top: 12%; }
+.artwork-player .player-info { gap: 3px; text-shadow: 0 1px 5px rgb(0 0 0 / .25); }
+.artwork-player .player-track { color: white; font-size: clamp(18px, 6vw, 28px); font-weight: 650; line-height: 1.15; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.artwork-player .player-meta { color: rgb(255 255 255 / .78); font-size: 13px; line-height: 1.4; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+.artwork-player .player-controls { justify-content: center; gap: 20px; }
+.artwork-player .control-spacer { display: none; }
+.artwork-player .control-btn { width: 44px; height: 44px; background: transparent; color: white; font-size: 23px; transition: opacity 120ms ease, scale 120ms ease; }
+.artwork-player .control-btn-play { width: 52px; height: 52px; background: rgb(255 255 255 / .18); font-size: 26px; }
+.artwork-player .control-btn:active { scale: .96; opacity: .7; }
+.artwork-player .player-progress { margin: 0; gap: 5px; }
+.artwork-player .progress-bar { height: 3px; background: rgb(255 255 255 / .25); }
+.artwork-player .progress-fill { background: white; }
+.artwork-player .progress-time { color: rgb(255 255 255 / .65); opacity: 1; font-size: 10px; line-height: 12px; }
+.artwork-player .player-volume { gap: 12px; }
+.artwork-player .player-volume svg { color: white; width: 16px; }
+.artwork-player #volume-slider { accent-color: white; height: 24px; }
+.artwork-player #status { position: absolute; top: 12px; left: 16px; right: 16px; border-radius: 8px; padding: 8px; color: white; background: rgb(0 0 0 / .7); }
+.artwork-player .artwork-loader { color: white; }
+.artwork-player .player-artwork.is-loading.empty::after { background: linear-gradient(90deg, transparent 20%, rgb(255 255 255 / .06) 50%, transparent 80%); }
+@media (max-width: 260px) { .artwork-player .player { padding: 12px; gap: 6px; } .artwork-player .player-track { font-size: 17px; } .artwork-player .player-meta { font-size: 11px; } .artwork-player .control-btn-play { width: 44px; height: 44px; } }

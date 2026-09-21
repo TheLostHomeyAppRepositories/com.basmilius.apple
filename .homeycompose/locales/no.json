@@ -16,6 +16,18 @@
     "widget": {
         "apple_tv_remote": {
             "no_device": "Ingen Apple TV valgt"
+        },
+        "mini_player": {
+            "no_device": "Ingen enhet valgt",
+            "play": "Spill av",
+            "pause": "Pause",
+            "previous": "Forrige",
+            "next": "Neste",
+            "shuffle": "Tilfeldig",
+            "repeat": "Gjenta",
+            "volume": "Volum",
+            "connection_error": "Kan ikke koble til spilleren.",
+            "command_error": "Spilleren kunne ikke utføre handlingen."
         }
     }
 }

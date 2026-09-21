@@ -2,9 +2,15 @@ import { type AbstractDevice, type AirPlayClient, type AirPlayPlayer, Proto } fr
 import { type Device, Shortcuts } from '@basmilius/homey-common';
 import type { AppleApp } from '../types';
 import Homey from 'homey';
+import { AnimatedArtworkCache } from '../utils/animatedArtworkCache';
 import AppleTVDevice from '../apple-tv/device';
 import HomePodBaseDevice from '../homepod-base/device';
 import { getFallbackArtworkUrl, repeatModeToCapability, safeCapabilityValue } from '../utils';
+
+const MAX_ARTWORK_SIZE = 4 * 1024 * 1024;
+
+// Artwork is downloaded while the now playing update is serialized, so a stalled request may not hold it up.
+const ARTWORK_DOWNLOAD_TIMEOUT = 5000;
 
 export type MiniPlayerState = {
     readonly deviceId: string;
@@ -17,6 +23,9 @@ export type MiniPlayerState = {
     readonly duration: number | null;
     readonly volume: number | null;
     readonly artworkUrl: string | null;
+    readonly artworkLocalUrl: string | null;
+    readonly artworkSourceUrl: string | null;
+    readonly animatedArtworkUrl: string | null;
     readonly onoff: boolean | null;
     readonly shuffle: boolean;
     readonly repeat: string;
@@ -82,6 +91,13 @@ export default class AirPlayLogic extends Shortcuts<AppleApp> {
 
     #artwork!: Homey.Image;
     #artworkIdentifier?: string;
+    #artworkLocalUrl: string | null = null;
+    #artworkSourceUrl: string | null = null;
+    readonly #animatedArtworkCache = new AnimatedArtworkCache();
+    #animatedArtworkUrl: string | null = null;
+    #animatedArtworkRequest = 0;
+    #animatedArtworkKey: string | null = null;
+    #animatedArtworkTrackKey: string | null = null;
     #currentNowPlayingBundleId: string | null = null;
     #miniPlayerUpdateTimer?: NodeJS.Timeout;
     #nowPlayingDebounceTimer?: NodeJS.Timeout;
@@ -111,6 +127,7 @@ export default class AirPlayLogic extends Shortcuts<AppleApp> {
     }
 
     async uninitialize(): Promise<void> {
+        this.#resetAnimatedArtwork();
         clearTimeout(this.#miniPlayerUpdateTimer);
         clearTimeout(this.#nowPlayingDebounceTimer);
         clearTimeout(this.#nowPlayingAppTimer);
@@ -129,6 +146,7 @@ export default class AirPlayLogic extends Shortcuts<AppleApp> {
     }
 
     async #clearNowPlayingImpl(): Promise<void> {
+        this.#resetAnimatedArtwork();
         try {
             if (this.#artwork) {
                 this.#artworkIdentifier = undefined;
@@ -173,6 +191,7 @@ export default class AirPlayLogic extends Shortcuts<AppleApp> {
         // @ts-expect-error The type definition for Homey.Image.localUrl does not exist, but the property is there.
         const localUrl = this.#artwork.localUrl;
         const localUrlWithCacheBuster = localUrl ? `${localUrl}?v=${cacheBuster}` : '';
+        this.#artworkLocalUrl = localUrlWithCacheBuster || null;
 
         if (this.#device.hasCapability('artwork_url_cloud')) {
             await this.#device.setCapabilityValue('artwork_url_cloud', artworkUrl);
@@ -192,6 +211,7 @@ export default class AirPlayLogic extends Shortcuts<AppleApp> {
     }
 
     getState(): MiniPlayerState {
+        this.#refreshAnimatedArtwork();
         return {
             deviceId: this.#device.id,
             deviceName: this.#device.getName(),
@@ -203,6 +223,9 @@ export default class AirPlayLogic extends Shortcuts<AppleApp> {
             duration: safeCapabilityValue(this.#device, 'speaker_duration'),
             volume: safeCapabilityValue(this.#device, 'volume_set'),
             artworkUrl: safeCapabilityValue(this.#device, 'artwork_url'),
+            artworkLocalUrl: this.#artworkLocalUrl,
+            artworkSourceUrl: this.#artworkSourceUrl,
+            animatedArtworkUrl: this.#animatedArtworkUrl,
             onoff: safeCapabilityValue(this.#device, 'onoff'),
             shuffle: this.shuffle,
             repeat: this.repeat,
@@ -216,6 +239,7 @@ export default class AirPlayLogic extends Shortcuts<AppleApp> {
     }
 
     setDevice(sdkDevice: AbstractDevice): void {
+        this.#resetAnimatedArtwork();
         this.#removeListeners();
 
         this.#sdkDevice = sdkDevice;
@@ -239,6 +263,11 @@ export default class AirPlayLogic extends Shortcuts<AppleApp> {
     }
 
     async onNowPlayingChanged(client: AirPlayClient | null, _player: AirPlayPlayer | null): Promise<void> {
+        const trackKey = client ? JSON.stringify([client.bundleIdentifier, client.artist, client.album, client.title, String(client.activePlayer?.currentItemMetadata?.iTunesStoreAlbumIdentifier ?? '')]) : null;
+        if (trackKey !== this.#animatedArtworkTrackKey) {
+            this.#resetAnimatedArtwork();
+            this.#animatedArtworkTrackKey = trackKey;
+        }
         clearTimeout(this.#nowPlayingDebounceTimer);
         this.#nowPlayingDebounceTimer = setTimeout(() => {
             this.#serialized(async () => {
@@ -277,6 +306,7 @@ export default class AirPlayLogic extends Shortcuts<AppleApp> {
 
         await this.#serialized(async () => {
             await this.#setArtwork(client);
+            this.#refreshAnimatedArtwork();
             this.#emitMiniPlayerUpdate();
         }).catch(err => this.log(this.deviceName, 'Failed to process artwork change:', err));
     }
@@ -337,13 +367,74 @@ export default class AirPlayLogic extends Shortcuts<AppleApp> {
         }
     }
 
+    #resetAnimatedArtwork(): void {
+        this.#animatedArtworkRequest++;
+        this.#animatedArtworkKey = null;
+        this.#animatedArtworkTrackKey = null;
+        this.#animatedArtworkUrl = null;
+    }
+
+    #refreshAnimatedArtwork(): void {
+        const sdkDevice = this.#sdkDevice;
+        const client = sdkDevice?.state.activeClient;
+        if (!sdkDevice || !client?.album) {
+            this.#resetAnimatedArtwork();
+            return;
+        }
+        if (client.title !== safeCapabilityValue(this.#device, 'speaker_track')
+            || client.album !== safeCapabilityValue(this.#device, 'speaker_album')) {
+            return;
+        }
+        const albumId = client.activePlayer?.currentItemMetadata?.iTunesStoreAlbumIdentifier;
+        if (!albumId || albumId === 0n) {
+            this.#resetAnimatedArtwork();
+            return;
+        }
+        const key = String(albumId);
+        const requestKey = `${key}:${Math.floor(Date.now() / 60_000)}`;
+        if (requestKey === this.#animatedArtworkKey) {
+            return;
+        }
+        this.#animatedArtworkKey = requestKey;
+        const request = ++this.#animatedArtworkRequest;
+        void this.#animatedArtworkCache.get(key, async () => {
+            if (String(sdkDevice.state.activeClient?.activePlayer?.currentItemMetadata?.iTunesStoreAlbumIdentifier) !== key) {
+                return null;
+            }
+            const artworks = await sdkDevice.artwork.getAnimatedFromCatalog();
+            const url = artworks.find(artwork => artwork.format === 'motionDetailSquare')?.url;
+            return url?.startsWith('https://') ? url : null;
+        }).then(url => {
+            if (request !== this.#animatedArtworkRequest || sdkDevice !== this.#sdkDevice) {
+                return;
+            }
+            if (this.#animatedArtworkUrl !== url) {
+                this.#animatedArtworkUrl = url;
+                this.#emitMiniPlayerUpdate();
+            }
+        }).catch(error => this.log(this.deviceName, 'Failed to fetch animated artwork:', error));
+    }
+
     async #updateArtwork(url: string | null): Promise<void> {
         try {
-            if (url) {
-                this.#artwork.setUrl(url.replace('.heic', '.jpg'));
-            } else {
+            const sourceUrl = url?.replace('.heic', '.jpg') ?? null;
+            this.#artworkSourceUrl = sourceUrl;
+
+            if (!sourceUrl) {
                 // @ts-expect-error The type definition of Homey.Image.setUrl() is incorrect.
                 this.#artwork.setUrl(null);
+            } else {
+                const buffer = await this.#downloadArtwork(sourceUrl);
+
+                // Serving the bytes ourselves keeps Homey from fetching the artwork upstream
+                // again for every viewer that opens the image.
+                if (buffer) {
+                    this.#artwork.setStream((stream: NodeJS.WritableStream) => {
+                        stream.end(buffer);
+                    });
+                } else {
+                    this.#artwork.setUrl(sourceUrl);
+                }
             }
 
             await this.#artwork.update();
@@ -353,12 +444,43 @@ export default class AirPlayLogic extends Shortcuts<AppleApp> {
         }
     }
 
+    async #downloadArtwork(url: string): Promise<Buffer | null> {
+        try {
+            const response = await fetch(url, {signal: AbortSignal.timeout(ARTWORK_DOWNLOAD_TIMEOUT)});
+
+            if (!response.ok) {
+                await response.body?.cancel();
+                return null;
+            }
+
+            const contentLength = Number(response.headers.get('content-length'));
+
+            if (contentLength > MAX_ARTWORK_SIZE) {
+                await response.body?.cancel();
+                return null;
+            }
+
+            const buffer = Buffer.from(await response.arrayBuffer());
+
+            if (buffer.byteLength > MAX_ARTWORK_SIZE || this.#isHeicBuffer(buffer)) {
+                return null;
+            }
+
+            return buffer;
+        } catch (err) {
+            this.log(this.deviceName, 'Failed to download album artwork', err);
+            return null;
+        }
+    }
+
     async #updateArtworkBuffer(buffer: Uint8Array<ArrayBufferLike> | Buffer): Promise<void> {
         const imageBuffer = Buffer.from(buffer);
 
         if (this.#isHeicBuffer(imageBuffer)) {
             return;
         }
+
+        this.#artworkSourceUrl = null;
 
         this.#artwork.setStream((stream: NodeJS.WritableStream) => {
             stream.end(imageBuffer);

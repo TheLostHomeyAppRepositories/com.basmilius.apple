@@ -16,6 +16,18 @@
     "widget": {
         "apple_tv_remote": {
             "no_device": "Ningún Apple TV seleccionado"
+        },
+        "mini_player": {
+            "no_device": "Ningún dispositivo seleccionado",
+            "play": "Reproducir",
+            "pause": "Pausar",
+            "previous": "Anterior",
+            "next": "Siguiente",
+            "shuffle": "Aleatorio",
+            "repeat": "Repetir",
+            "volume": "Volumen",
+            "connection_error": "No se puede conectar con el reproductor.",
+            "command_error": "El reproductor no pudo completar esta acción."
         }
     }
 }

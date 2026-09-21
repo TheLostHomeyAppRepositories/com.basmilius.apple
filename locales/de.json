@@ -15,7 +15,16 @@
   },
   "widget": {
     "mini_player": {
-      "no_device": "Kein Gerät ausgewählt"
+      "no_device": "Kein Gerät ausgewählt",
+      "play": "Wiedergabe",
+      "pause": "Pause",
+      "previous": "Zurück",
+      "next": "Weiter",
+      "shuffle": "Zufallswiedergabe",
+      "repeat": "Wiederholen",
+      "volume": "Lautstärke",
+      "connection_error": "Verbindung zum Player nicht möglich.",
+      "command_error": "Der Player konnte diese Aktion nicht ausführen."
     },
     "apple_tv_remote": {
       "no_device": "Kein Apple TV ausgewählt"

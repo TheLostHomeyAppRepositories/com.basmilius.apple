@@ -16,6 +16,18 @@
     "widget": {
         "apple_tv_remote": {
             "no_device": "Ingen Apple TV valgt"
+        },
+        "mini_player": {
+            "no_device": "Ingen enhed valgt",
+            "play": "Afspil",
+            "pause": "Pause",
+            "previous": "Forrige",
+            "next": "Næste",
+            "shuffle": "Bland",
+            "repeat": "Gentag",
+            "volume": "Lydstyrke",
+            "connection_error": "Kan ikke oprette forbindelse til afspilleren.",
+            "command_error": "Afspilleren kunne ikke udføre handlingen."
         }
     }
 }

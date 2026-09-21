@@ -15,7 +15,16 @@
     },
     "widget": {
         "mini_player": {
-            "no_device": "Geen apparaat geselecteerd"
+            "no_device": "Geen apparaat geselecteerd",
+            "play": "Afspelen",
+            "pause": "Pauzeren",
+            "previous": "Vorige",
+            "next": "Volgende",
+            "shuffle": "Willekeurige volgorde",
+            "repeat": "Herhalen",
+            "volume": "Volume",
+            "connection_error": "Kan geen verbinding maken met de speler.",
+            "command_error": "De speler kon deze actie niet uitvoeren."
         },
         "apple_tv_remote": {
             "no_device": "Geen Apple TV geselecteerd"

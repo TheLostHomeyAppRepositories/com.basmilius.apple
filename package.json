@@ -3,7 +3,8 @@
     "version": "1.0.0",
     "license": "MIT",
     "scripts": {
-        "build": "tsc ${NOCHECK:+--noCheck}"
+        "build": "tsc ${NOCHECK:+--noCheck} && bun run build:widgets",
+        "build:widgets": "bun build widgets/client/player.ts --target browser --minify --outfile .homeybuild/widgets/mini_player/public/player.js && bun build widgets/client/player.ts --target browser --minify --outfile .homeybuild/widgets/artwork_player/public/player.js"
     },
     "dependencies": {
         "@basmilius/apple-audio-source": "^0.13.4",
@@ -14,6 +15,7 @@
         "@tsconfig/node22": "^22.0.5",
         "@types/homey": "npm:homey-apps-sdk-v3-types@^0.3.12",
         "@types/node": "^25.6.0",
+        "hls.js": "^1.7.3",
         "typescript": "^6.0.3"
     }
 }

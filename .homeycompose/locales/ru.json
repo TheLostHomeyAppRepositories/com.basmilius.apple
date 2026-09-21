@@ -16,6 +16,18 @@
     "widget": {
         "apple_tv_remote": {
             "no_device": "Apple TV не выбран"
+        },
+        "mini_player": {
+            "no_device": "Устройство не выбрано",
+            "play": "Воспроизвести",
+            "pause": "Пауза",
+            "previous": "Предыдущий",
+            "next": "Следующий",
+            "shuffle": "Перемешать",
+            "repeat": "Повторить",
+            "volume": "Громкость",
+            "connection_error": "Не удалось подключиться к плееру.",
+            "command_error": "Плеер не смог выполнить это действие."
         }
     }
 }

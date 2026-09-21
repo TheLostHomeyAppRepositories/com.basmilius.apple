@@ -16,6 +16,18 @@
     "widget": {
         "apple_tv_remote": {
             "no_device": "لم يتم اختيار Apple TV"
+        },
+        "mini_player": {
+            "no_device": "لم يتم اختيار جهاز",
+            "play": "تشغيل",
+            "pause": "إيقاف مؤقت",
+            "previous": "السابق",
+            "next": "التالي",
+            "shuffle": "تشغيل عشوائي",
+            "repeat": "تكرار",
+            "volume": "مستوى الصوت",
+            "connection_error": "تعذر الاتصال بالمشغل.",
+            "command_error": "تعذر على المشغل إكمال هذا الإجراء."
         }
     }
 }

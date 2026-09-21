@@ -16,6 +16,18 @@
     "widget": {
         "apple_tv_remote": {
             "no_device": "Ingen Apple TV vald"
+        },
+        "mini_player": {
+            "no_device": "Ingen enhet vald",
+            "play": "Spela",
+            "pause": "Pausa",
+            "previous": "Föregående",
+            "next": "Nästa",
+            "shuffle": "Blanda",
+            "repeat": "Upprepa",
+            "volume": "Volym",
+            "connection_error": "Det går inte att ansluta till spelaren.",
+            "command_error": "Spelaren kunde inte utföra åtgärden."
         }
     }
 }

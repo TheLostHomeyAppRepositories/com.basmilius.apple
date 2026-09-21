@@ -16,6 +16,18 @@
   "widget": {
     "apple_tv_remote": {
       "no_device": "Nie wybrano Apple TV"
+    },
+    "mini_player": {
+      "no_device": "Nie wybrano urządzenia",
+      "play": "Odtwórz",
+      "pause": "Pauza",
+      "previous": "Poprzedni",
+      "next": "Następny",
+      "shuffle": "Losowo",
+      "repeat": "Powtórz",
+      "volume": "Głośność",
+      "connection_error": "Nie można połączyć się z odtwarzaczem.",
+      "command_error": "Odtwarzacz nie mógł wykonać tej czynności."
     }
   }
 }

@@ -15,7 +15,16 @@
     },
     "widget": {
         "mini_player": {
-            "no_device": "No device selected"
+            "no_device": "No device selected",
+            "play": "Play",
+            "pause": "Pause",
+            "previous": "Previous",
+            "next": "Next",
+            "shuffle": "Shuffle",
+            "repeat": "Repeat",
+            "volume": "Volume",
+            "connection_error": "Unable to connect to the player.",
+            "command_error": "The player could not complete this action."
         },
         "apple_tv_remote": {
             "no_device": "No Apple TV selected"
