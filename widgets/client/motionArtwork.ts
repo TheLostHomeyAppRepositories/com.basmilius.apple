@@ -1,6 +1,9 @@
 import Hls from 'hls.js';
 import { ARTWORK_FADE_DURATION } from './artwork';
 
+// Tearing the stream down also fires an error, so a url is only given up on after repeated failures.
+const MAX_FAILURES = 3;
+
 export class MotionArtwork {
     readonly #video: HTMLVideoElement;
     readonly #reducedMotion = matchMedia('(prefers-reduced-motion: reduce)');
@@ -9,6 +12,7 @@ export class MotionArtwork {
     #url: string | null = null;
     #loadedUrl: string | null = null;
     #failedUrl: string | null = null;
+    #failures = 0;
     #fadeTimer?: ReturnType<typeof setTimeout>;
     #visible = true;
     #playing = false;
@@ -18,12 +22,15 @@ export class MotionArtwork {
         video.muted = true;
         video.loop = true;
         video.playsInline = true;
-        video.addEventListener('playing', () => video.classList.add('is-playing'));
+        video.addEventListener('playing', () => {
+            video.classList.add('is-playing');
+            this.#failures = 0;
+        });
         video.addEventListener('error', this.#fail);
         document.addEventListener('visibilitychange', this.#sync);
         this.#reducedMotion.addEventListener('change', this.#sync);
         this.#observer = new IntersectionObserver(entries => {
-            this.#visible = entries[0]?.isIntersecting ?? false;
+            this.#visible = entries[entries.length - 1]?.isIntersecting ?? false;
             this.#sync();
         });
         this.#observer.observe(video.parentElement!);
@@ -33,6 +40,7 @@ export class MotionArtwork {
         this.#playing = playing;
         if (url !== this.#url) {
             this.#failedUrl = null;
+            this.#failures = 0;
             this.#url = url;
             this.#switchSource();
             return;
@@ -56,12 +64,12 @@ export class MotionArtwork {
             this.#destroy();
             return;
         }
-        if (!this.#playing || !this.#url || this.#url === this.#failedUrl) {
+        if (!this.#playing || !this.#url || this.#exhausted()) {
             this.#video.pause();
             return;
         }
         if (this.#loadedUrl === this.#url) {
-            void this.#video.play().catch(() => this.#video.classList.remove('is-playing'));
+            this.#play();
             return;
         }
         this.#loadedUrl = this.#url;
@@ -81,13 +89,26 @@ export class MotionArtwork {
             this.#fail();
             return;
         }
-        void this.#video.play().catch(() => this.#video.classList.remove('is-playing'));
+        this.#play();
     };
 
+    #play(): void {
+        void this.#video.play().catch(() => this.#video.classList.remove('is-playing'));
+    }
+
     readonly #fail = (): void => {
-        this.#failedUrl = this.#url;
+        const url = this.#loadedUrl ?? this.#url;
+        if (url !== this.#failedUrl) {
+            this.#failedUrl = url;
+            this.#failures = 0;
+        }
+        this.#failures++;
         this.#destroy();
     };
+
+    #exhausted(): boolean {
+        return this.#url === this.#failedUrl && this.#failures >= MAX_FAILURES;
+    }
 
     /**
      * Moves to the artwork in #url. A visible stream first fades out, so the still artwork
