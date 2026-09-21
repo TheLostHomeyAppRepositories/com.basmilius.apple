@@ -328,5 +328,20 @@
     "1.8.0": {
         "en": "Introduces a new 'now playing app becomes' trigger and 'now playing app is' condition.",
         "nl": "Voegt een nieuwe 'nu spelende app wordt' trigger toe en een nieuwe 'nu spelende app is' conditie."
+    },
+    "1.9.0": {
+        "en": "Adds an Artwork Player widget and shows animated album artwork from Apple Music in both player widgets. Artwork now keeps loading until the device provides it, and the playback position no longer stalls between updates. Updates the Apple Protocols SDK to 0.14.1.",
+        "nl": "Voegt een Artwork Player-widget toe en toont geanimeerde albumhoezen van Apple Music in beide speler-widgets. Artwork blijft nu laden tot het apparaat het levert en de afspeelpositie loopt niet meer vast tussen updates. Werkt de Apple Protocols SDK bij naar 0.14.1.",
+        "de": "Fügt ein Artwork-Player-Widget hinzu und zeigt animierte Albumcover von Apple Music in beiden Player-Widgets. Artwork wird jetzt so lange geladen, bis das Gerät es liefert, und die Wiedergabeposition bleibt zwischen Aktualisierungen nicht mehr stehen. Aktualisiert das Apple Protocols SDK auf 0.14.1.",
+        "fr": "Ajoute un widget Artwork Player et affiche les pochettes animées d'Apple Music dans les deux widgets de lecture. Les pochettes continuent de se charger jusqu'à ce que l'appareil les fournisse, et la position de lecture ne se bloque plus entre les mises à jour. Met à jour le SDK Apple Protocols vers 0.14.1.",
+        "es": "Añade un widget Artwork Player y muestra las portadas animadas de Apple Music en ambos widgets de reproducción. Las portadas siguen cargándose hasta que el dispositivo las proporciona y la posición de reproducción ya no se detiene entre actualizaciones. Actualiza el SDK de Apple Protocols a 0.14.1.",
+        "it": "Aggiunge un widget Artwork Player e mostra le copertine animate di Apple Music in entrambi i widget del lettore. Le copertine continuano a caricarsi finché il dispositivo non le fornisce e la posizione di riproduzione non si blocca più tra un aggiornamento e l'altro. Aggiorna l'SDK Apple Protocols alla 0.14.1.",
+        "da": "Tilføjer en Artwork Player-widget og viser animerede albumomslag fra Apple Music i begge afspiller-widgets. Omslag bliver nu ved med at indlæse, indtil enheden leverer dem, og afspilningspositionen går ikke længere i stå mellem opdateringer. Opdaterer Apple Protocols SDK til 0.14.1.",
+        "no": "Legger til en Artwork Player-widget og viser animerte albumomslag fra Apple Music i begge spiller-widgetene. Omslag fortsetter nå å laste til enheten leverer dem, og avspillingsposisjonen stopper ikke lenger opp mellom oppdateringer. Oppdaterer Apple Protocols SDK til 0.14.1.",
+        "sv": "Lägger till en Artwork Player-widget och visar animerade skivomslag från Apple Music i båda spelarwidgetarna. Omslag fortsätter nu att laddas tills enheten levererar dem, och uppspelningspositionen stannar inte längre mellan uppdateringar. Uppdaterar Apple Protocols SDK till 0.14.1.",
+        "pl": "Dodaje widżet Artwork Player i pokazuje animowane okładki albumów z Apple Music w obu widżetach odtwarzacza. Okładki są teraz wczytywane, dopóki urządzenie ich nie udostępni, a pozycja odtwarzania nie zatrzymuje się już między aktualizacjami. Aktualizuje SDK Apple Protocols do 0.14.1.",
+        "ru": "Добавляет виджет Artwork Player и показывает анимированные обложки альбомов из Apple Music в обоих виджетах плеера. Обложки теперь загружаются, пока устройство их не предоставит, а позиция воспроизведения больше не останавливается между обновлениями. Обновляет SDK Apple Protocols до 0.14.1.",
+        "ko": "Artwork Player 위젯을 추가하고 두 플레이어 위젯 모두에서 Apple Music의 움직이는 앨범 아트워크를 표시합니다. 기기가 아트워크를 제공할 때까지 계속 불러오며, 재생 위치가 업데이트 사이에 멈추지 않습니다. Apple Protocols SDK를 0.14.1로 업데이트했습니다.",
+        "ar": "يضيف أداة Artwork Player ويعرض أغلفة الألبومات المتحركة من Apple Music في كلتا أداتي المشغّل. تستمر الأغلفة في التحميل حتى يوفّرها الجهاز، ولم يعد موضع التشغيل يتوقف بين التحديثات. يحدّث حزمة Apple Protocols SDK إلى 0.14.1."
     }
 }
