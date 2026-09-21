@@ -9,7 +9,6 @@ import { getFallbackArtworkUrl, repeatModeToCapability, safeCapabilityValue } fr
 
 const MAX_ARTWORK_SIZE = 4 * 1024 * 1024;
 
-// Artwork is downloaded while the now playing update is serialized, so a stalled request may not hold it up.
 const ARTWORK_DOWNLOAD_TIMEOUT = 5000;
 
 export type MiniPlayerState = {
@@ -384,17 +383,24 @@ export default class AirPlayLogic extends Shortcuts<AppleApp> {
     #refreshAnimatedArtwork(): void {
         const sdkDevice = this.#sdkDevice;
         const client = sdkDevice?.state.activeClient;
-        if (!sdkDevice || !client?.album) {
+        if (!sdkDevice || !client) {
             this.#resetAnimatedArtwork();
             return;
         }
-        if (client.title !== safeCapabilityValue(this.#device, 'speaker_track')
-            || client.album !== safeCapabilityValue(this.#device, 'speaker_album')) {
+
+        // Metadata arrives in pieces, so an incomplete item says nothing about the track that
+        // is playing. onNowPlayingChanged owns the reset, by comparing the whole track key.
+        if (client.title !== safeCapabilityValue(this.#device, 'speaker_track')) {
+            return;
+        }
+
+        // Apple leaves the album name empty for plenty of sources. The catalog lookup keys on
+        // the album id, so only compare the name when the device actually reports one.
+        if (client.album && client.album !== safeCapabilityValue(this.#device, 'speaker_album')) {
             return;
         }
         const albumId = client.activePlayer?.currentItemMetadata?.iTunesStoreAlbumIdentifier;
         if (!albumId || albumId === 0n) {
-            this.#resetAnimatedArtwork();
             return;
         }
         const key = String(albumId);
@@ -427,27 +433,45 @@ export default class AirPlayLogic extends Shortcuts<AppleApp> {
             const sourceUrl = url?.replace('.heic', '.jpg') ?? null;
             this.#artworkSourceUrl = sourceUrl;
 
-            if (!sourceUrl) {
+            if (sourceUrl) {
+                this.#artwork.setUrl(sourceUrl);
+            } else {
                 // @ts-expect-error The type definition of Homey.Image.setUrl() is incorrect.
                 this.#artwork.setUrl(null);
-            } else {
-                const buffer = await this.#downloadArtwork(sourceUrl);
-
-                // Serving the bytes ourselves keeps Homey from fetching the artwork upstream
-                // again for every viewer that opens the image.
-                if (buffer) {
-                    this.#artwork.setStream((stream: NodeJS.WritableStream) => {
-                        stream.end(buffer);
-                    });
-                } else {
-                    this.#artwork.setUrl(sourceUrl);
-                }
             }
 
             await this.#artwork.update();
             await this.updateArtworkUrl();
+
+            if (sourceUrl) {
+                void this.#bufferArtwork(sourceUrl);
+            }
         } catch (err) {
             this.log(this.deviceName, 'Failed to update album artwork', err);
+        }
+    }
+
+    /**
+     * Swaps the remote url for the downloaded bytes, so Homey serves the artwork from memory
+     * instead of fetching it upstream for every viewer. Deliberately not awaited: the url is
+     * already published, and the download may not hold up the now playing update.
+     */
+    async #bufferArtwork(sourceUrl: string): Promise<void> {
+        const buffer = await this.#downloadArtwork(sourceUrl);
+
+        if (!buffer || sourceUrl !== this.#artworkSourceUrl) {
+            return;
+        }
+
+        try {
+            this.#artwork.setStream((stream: NodeJS.WritableStream) => {
+                stream.end(buffer);
+            });
+
+            // The url stays the same, so viewers keep the copy they already have.
+            await this.#artwork.update();
+        } catch (err) {
+            this.log(this.deviceName, 'Failed to cache album artwork', err);
         }
     }
 
