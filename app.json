@@ -2051,6 +2051,7 @@
         "speaker_repeat",
         "speaker_shuffle",
         "artwork_url",
+        "artwork_animated_url",
         "onoff",
         "power",
         "volume_down",
@@ -2230,6 +2231,7 @@
         "speaker_repeat",
         "speaker_shuffle",
         "artwork_url",
+        "artwork_animated_url",
         "volume_down",
         "volume_set",
         "volume_up",
@@ -2354,6 +2356,7 @@
         "speaker_repeat",
         "speaker_shuffle",
         "artwork_url",
+        "artwork_animated_url",
         "volume_down",
         "volume_set",
         "volume_up",
@@ -2873,6 +2876,28 @@
     }
   },
   "capabilities": {
+    "artwork_animated_url": {
+      "type": "string",
+      "title": {
+        "en": "Animated artwork URL",
+        "nl": "Bewegende albumhoes URL",
+        "da": "Animeret kunstværk URL",
+        "de": "Animierte Artwork-URL",
+        "es": "URL de la ilustración animada",
+        "fr": "URL de l'illustration animée",
+        "it": "URL dell'artwork animato",
+        "no": "Animert kunstverk URL",
+        "sv": "Animerat konstverk URL",
+        "pl": "URL animowanej grafiki",
+        "ru": "URL анимированной обложки",
+        "ko": "애니메이션 아트워크 URL",
+        "ar": "رابط الصورة الفنية المتحركة"
+      },
+      "getable": true,
+      "setable": false,
+      "uiComponent": null,
+      "icon": "assets/capabilities/artwork.svg"
+    },
     "artwork_url": {
       "type": "string",
       "title": {

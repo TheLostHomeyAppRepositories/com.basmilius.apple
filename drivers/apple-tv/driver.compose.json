@@ -28,6 +28,7 @@
         "speaker_repeat",
         "speaker_shuffle",
         "artwork_url",
+        "artwork_animated_url",
         "onoff",
         "power",
         "volume_down",

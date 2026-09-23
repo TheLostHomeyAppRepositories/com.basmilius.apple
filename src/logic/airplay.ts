@@ -377,7 +377,18 @@ export default class AirPlayLogic extends Shortcuts<AppleApp> {
         this.#animatedArtworkRequest++;
         this.#animatedArtworkKey = null;
         this.#animatedArtworkTrackKey = null;
-        this.#animatedArtworkUrl = null;
+        this.#setAnimatedArtworkUrl(null);
+    }
+
+    #setAnimatedArtworkUrl(url: string | null): void {
+        this.#animatedArtworkUrl = url;
+
+        if (!this.#device.hasCapability('artwork_animated_url')) {
+            return;
+        }
+
+        this.#device.setCapabilityValue('artwork_animated_url', url)
+            .catch((err: unknown) => this.log(this.deviceName, 'Failed to update animated artwork:', err));
     }
 
     #refreshAnimatedArtwork(): void {
@@ -422,7 +433,7 @@ export default class AirPlayLogic extends Shortcuts<AppleApp> {
                 return;
             }
             if (this.#animatedArtworkUrl !== url) {
-                this.#animatedArtworkUrl = url;
+                this.#setAnimatedArtworkUrl(url);
                 this.#emitMiniPlayerUpdate();
             }
         }).catch(error => this.log(this.deviceName, 'Failed to fetch animated artwork:', error));
@@ -571,6 +582,7 @@ export default class AirPlayLogic extends Shortcuts<AppleApp> {
             );
 
             await this.#setArtwork(client);
+            this.#refreshAnimatedArtwork();
             this.#emitMiniPlayerUpdate();
         } catch (err) {
             this.log(this.deviceName, 'Failed to update now playing info', err);
@@ -594,6 +606,11 @@ export default class AirPlayLogic extends Shortcuts<AppleApp> {
             } else if (!isSupported && hasCapability) {
                 await this.#device.removeCapability(id);
             }
+        }
+
+        // Devices paired before this capability existed receive it here.
+        if (!this.#device.hasCapability('artwork_animated_url')) {
+            await this.#device.addCapability('artwork_animated_url');
         }
 
         // Volume set is dynamically managed for Apple TV based on output device capabilities.
