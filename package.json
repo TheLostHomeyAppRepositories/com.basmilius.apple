@@ -9,7 +9,7 @@
     "dependencies": {
         "@basmilius/apple-audio-source": "^0.14.1",
         "@basmilius/apple-sdk": "^0.14.1",
-        "@basmilius/homey-common": "^1.24.0"
+        "@basmilius/homey-common": "^1.25.0"
     },
     "devDependencies": {
         "@tsconfig/node22": "^22.0.6",
